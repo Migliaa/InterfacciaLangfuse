@@ -1,0 +1,407 @@
+<!--
+  PROTOTYPE — throwaway, non collegato a Langfuse, dati finti in-memory.
+  Domanda: come deve essere il layout/interazione della schermata di revisione del giudice umano.
+  Tre varianti radicalmente diverse, cambio con ?variant=a|b|c e con le frecce della barra in
+  basso. Da buttare una volta scelta la variante — vedi mattpocock-skills:prototype.
+-->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROTOTYPE — giudice UI</title>
+<style>
+  :root {
+    --bg: #f5f5f4; --panel: #ffffff; --border: #e2e2e0; --text: #1c1c1a; --muted: #6b6b66;
+    --accent: #2563eb; --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .proto-banner { background: #1c1c1a; color: #fbbf24; font-size: 12px; text-align: center; padding: 4px; letter-spacing: .05em; }
+  h1, h2, h3 { margin: 0 0 8px; }
+  .muted { color: var(--muted); }
+  .pill { display:inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background:#dcfce7; color:var(--ok); }
+  .pill.warn { background:#fef3c7; color:var(--warn); }
+  .pill.bad { background:#fee2e2; color:var(--bad); }
+  button { font: inherit; cursor: pointer; }
+
+  /* --- switcher --- */
+  #switcher {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: #1c1c1a; color: white; border-radius: 999px; padding: 8px 6px;
+    display: flex; align-items: center; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    z-index: 999; font-size: 13px;
+  }
+  #switcher button { background: transparent; border: none; color: white; width: 32px; height: 32px; border-radius: 999px; font-size: 16px; }
+  #switcher button:hover { background: rgba(255,255,255,.15); }
+  #switcher .label { padding: 0 10px; min-width: 190px; text-align: center; }
+
+  .variant { display: none; min-height: 100vh; padding-bottom: 90px; }
+  .variant.active { display: block; }
+
+  /* === VARIANT A: tre colonne === */
+  .a-wrap { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .a-cols { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 16px; align-items: start; }
+  .a-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .a-panel h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .a-row { display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .a-row:last-child { border-bottom: none; font-weight: 700; }
+  .a-judge { margin-top: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .a-judge-groups { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  .btn-group { display: flex; gap: 8px; margin: 8px 0; }
+  .choice-btn { flex:1; padding: 14px; border-radius: 10px; border: 2px solid var(--border); background: white; font-size: 15px; font-weight: 600; }
+  .choice-btn.sel-si { border-color: var(--ok); background: #f0fdf4; }
+  .choice-btn.sel-no { border-color: var(--bad); background: #fef2f2; }
+  .choice-btn.sel-rivedere { border-color: var(--warn); background: #fffbeb; }
+  textarea { width: 100%; min-height: 60px; border-radius: 8px; border: 1px solid var(--border); padding: 10px; font: inherit; margin-top: 8px; }
+  .submit-btn { margin-top: 16px; width: 100%; padding: 16px; border-radius: 10px; border: none; background: var(--accent); color: white; font-size: 16px; font-weight: 700; }
+  .submit-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+  /* === VARIANT B: stack verticale mobile-first, bottom sheet === */
+  .b-wrap { max-width: 640px; margin: 0 auto; padding: 16px; padding-bottom: 220px; }
+  .b-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+  .b-card summary { padding: 14px 16px; font-weight: 700; cursor: pointer; list-style: none; display:flex; justify-content:space-between; align-items:center; }
+  .b-card summary::-webkit-details-marker { display: none; }
+  .b-card .body { padding: 0 16px 16px; font-size: 14px; }
+  .b-card.main { border: 2px solid var(--accent); }
+  .b-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel);
+    border-top: 1px solid var(--border); border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 24px rgba(0,0,0,.12); padding: 16px; padding-bottom: 76px;
+    max-width: 640px; margin: 0 auto;
+  }
+  .b-sheet .row-label { font-size: 12px; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+  .b-big-btns { display:flex; gap: 8px; }
+  .b-big-btns button { flex:1; padding: 16px 4px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 700; }
+  .b-big-btns button.sel-si { border-color: var(--ok); background: #f0fdf4; }
+  .b-big-btns button.sel-no { border-color: var(--bad); background: #fef2f2; }
+  .b-big-btns button.sel-rivedere { border-color: var(--warn); background: #fffbeb; }
+
+  /* === VARIANT C: annotazione inline stile revisione === */
+  .c-wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+  .c-req { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; font-size: 14px; }
+  .c-line { display: grid; grid-template-columns: 1fr auto 220px; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .c-line .amount { font-weight: 700; white-space: nowrap; }
+  .c-annot { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: #f8fafc; border: 1px solid var(--border); }
+  .c-annot.flag { background: #fffbeb; border-color: #fde68a; }
+  .c-final { margin-top: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .c-toggle { display: inline-flex; border: 2px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .c-toggle button { border: none; background: white; padding: 10px 18px; font-weight: 600; }
+  .c-toggle button.active-si { background: var(--ok); color: white; }
+  .c-toggle button.active-no { background: var(--bad); color: white; }
+  .c-toggle button.active-rivedere { background: var(--warn); color: white; }
+
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: #1c1c1a; color: white; padding: 10px 20px; border-radius: 999px;
+    font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="proto-banner">PROTOTYPE — layout della schermata del giudice umano — dati finti, nessuna integrazione Langfuse</div>
+<div id="toast" class="toast"></div>
+
+<!-- ============ VARIANT A ============ -->
+<section class="variant" id="variant-a" data-name="A — Tre colonne affiancate">
+  <div class="a-wrap">
+    <p class="muted" style="margin-bottom:16px">Item <span id="a-idx">1</span> di <span id="a-total">3</span></p>
+    <div class="a-cols">
+      <div class="a-panel">
+        <h3>Richiesta cliente</h3>
+        <p id="a-richiesta" style="font-size:15px; line-height:1.5"></p>
+      </div>
+      <div class="a-panel">
+        <h3>Preventivo generato</h3>
+        <div id="a-preventivo-righe"></div>
+      </div>
+      <div class="a-panel">
+        <h3>Verdetto giudice automatico</h3>
+        <p id="a-verdetto-pill"></p>
+        <p id="a-verdetto-testo" class="muted" style="font-size:14px"></p>
+      </div>
+    </div>
+    <div class="a-judge">
+      <div class="a-judge-groups">
+        <div>
+          <h3>Il preventivo va bene?</h3>
+          <div class="btn-group" id="a-preventivo-btns">
+            <button class="choice-btn" data-val="si">Sì</button>
+            <button class="choice-btn" data-val="rivedere">Da rivedere</button>
+            <button class="choice-btn" data-val="no">No</button>
+          </div>
+          <textarea id="a-commento" placeholder="Commento (obbligatorio se non è 'Sì')"></textarea>
+        </div>
+        <div>
+          <h3>Sei d'accordo col giudice automatico?</h3>
+          <div class="btn-group" id="a-accordo-btns">
+            <button class="choice-btn" data-val="si">Sì</button>
+            <button class="choice-btn" data-val="no">No</button>
+          </div>
+        </div>
+      </div>
+      <button class="submit-btn" id="a-submit" disabled>Invia e passa al prossimo</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VARIANT B ============ -->
+<section class="variant" id="variant-b" data-name="B — Stack verticale, bottom sheet mobile">
+  <div class="b-wrap">
+    <p class="muted" style="margin:8px 0 16px">Item <span id="b-idx">1</span> di <span id="b-total">3</span></p>
+    <details class="b-card">
+      <summary>Richiesta cliente <span class="muted" style="font-weight:400; font-size:12px">(tocca per aprire)</span></summary>
+      <div class="body" id="b-richiesta"></div>
+    </details>
+    <details class="b-card main" open>
+      <summary>Preventivo generato</summary>
+      <div class="body" id="b-preventivo-righe"></div>
+    </details>
+    <details class="b-card">
+      <summary>Verdetto giudice automatico <span id="b-verdetto-pill-inline"></span></summary>
+      <div class="body" id="b-verdetto-testo"></div>
+    </details>
+  </div>
+  <div class="b-sheet">
+    <div class="row-label">Il preventivo va bene?</div>
+    <div class="b-big-btns" id="b-preventivo-btns">
+      <button data-val="si">Sì</button>
+      <button data-val="rivedere">Da rivedere</button>
+      <button data-val="no">No</button>
+    </div>
+    <textarea id="b-commento" placeholder="Commento (obbligatorio se non è 'Sì')" style="min-height:40px"></textarea>
+    <div class="row-label">D'accordo col giudice automatico?</div>
+    <div class="b-big-btns" id="b-accordo-btns">
+      <button data-val="si">Sì</button>
+      <button data-val="no">No</button>
+    </div>
+    <button class="submit-btn" id="b-submit" disabled style="margin-top:12px">Invia e vai al prossimo</button>
+  </div>
+</section>
+
+<!-- ============ VARIANT C ============ -->
+<section class="variant" id="variant-c" data-name="C — Annotazione inline per riga">
+  <div class="c-wrap">
+    <p class="muted">Item <span id="c-idx">1</span> di <span id="c-total">3</span></p>
+    <div class="c-req"><strong>Richiesta:</strong> <span id="c-richiesta"></span></div>
+    <div id="c-righe"></div>
+    <div class="c-final">
+      <h3>Il preventivo, nel complesso, va bene?</h3>
+      <div class="c-toggle" id="c-preventivo-toggle">
+        <button data-val="si">Sì</button>
+        <button data-val="rivedere">Da rivedere</button>
+        <button data-val="no">No</button>
+      </div>
+      <textarea id="c-commento" placeholder="Commento (obbligatorio se non è 'Sì')"></textarea>
+      <h3 style="margin-top:20px">Sei d'accordo con le annotazioni del giudice automatico qui sopra?</h3>
+      <div class="c-toggle" id="c-accordo-toggle">
+        <button data-val="si">Sì</button>
+        <button data-val="no">No</button>
+      </div>
+      <button class="submit-btn" id="c-submit" disabled>Invia e passa al prossimo</button>
+    </div>
+  </div>
+</section>
+
+<div id="switcher">
+  <button id="prev">&#8592;</button>
+  <span class="label" id="switcher-label"></span>
+  <button id="next">&#8594;</button>
+</div>
+
+<script>
+// ---- dati finti: coda di 3 item ----
+const QUEUE = [
+  {
+    richiesta: "Vorrei tinteggiare pareti e soffitto di un appartamento di 80 mq, due mani di pittura lavabile bianca, disponibilità entro fine mese.",
+    righe: [
+      { voce: "Pittura lavabile bianca (mano 1+2)", qta: "80 mq", prezzo: "12 €/mq", totale: "960 €" },
+      { voce: "Stuccatura e rasatura pareti", qta: "80 mq", prezzo: "4 €/mq", totale: "320 €" },
+      { voce: "Protezione pavimenti e mobili", qta: "1", prezzo: "80 €", totale: "80 €" },
+      { voce: "Totale", qta: "", prezzo: "", totale: "1.360 €" },
+    ],
+    verdetto: "ok", verdettoTesto: "Superficie e prezzi coerenti col catalogo servizi. Nessuna voce mancante rispetto alla richiesta.",
+    annotazioni: ["Coerente col catalogo", "Coerente", "Voce plausibile, non richiesta esplicitamente ma standard"],
+  },
+  {
+    richiesta: "Preventivo per la sostituzione di 6 finestre in un appartamento, doppio vetro, entro 3 settimane.",
+    righe: [
+      { voce: "Finestra doppio vetro 120x150", qta: "6", prezzo: "450 €", totale: "2.700 €" },
+      { voce: "Smontaggio e smaltimento vecchi infissi", qta: "6", prezzo: "60 €", totale: "360 €" },
+      { voce: "Totale", qta: "", prezzo: "", totale: "3.060 €" },
+    ],
+    verdetto: "rivedere", verdettoTesto: "Manca la voce di posa in opera, presente nel catalogo come obbligatoria per questo servizio.",
+    annotazioni: ["Prezzo unitario nella norma", "Coerente", "⚠ manca posa in opera nel totale"],
+  },
+  {
+    richiesta: "Pulizia straordinaria fine cantiere per un negozio di 40 mq, da fare in un weekend.",
+    righe: [
+      { voce: "Pulizia fine cantiere", qta: "40 mq", prezzo: "9 €/mq", totale: "360 €" },
+      { voce: "Maggiorazione weekend", qta: "1", prezzo: "50 €", totale: "50 €" },
+      { voce: "Totale", qta: "", prezzo: "", totale: "410 €" },
+    ],
+    verdetto: "ok", verdettoTesto: "Prezzo e maggiorazione coerenti col catalogo. Richiesta soddisfatta.",
+    annotazioni: ["Coerente", "Maggiorazione da catalogo, corretta"],
+  },
+];
+
+let current = 0; // indice item in coda
+const state = {}; // stato di giudizio per variante, resettato a ogni item
+
+function pillHtml(verdetto) {
+  if (verdetto === "ok") return '<span class="pill ok">Coerente</span>';
+  if (verdetto === "rivedere") return '<span class="pill warn">Da rivedere</span>';
+  return '<span class="pill bad">Incoerente</span>';
+}
+
+function renderRigheHtml(righe) {
+  return righe.map(r => `<div class="a-row"><span>${r.voce}${r.qta ? " · " + r.qta : ""}</span><span>${r.totale}</span></div>`).join("");
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1400);
+}
+
+function resetJudgeState() {
+  state.preventivo = null;
+  state.accordo = null;
+  state.commento = "";
+}
+
+function renderAll() {
+  const item = QUEUE[current];
+  resetJudgeState();
+
+  // --- A ---
+  document.getElementById("a-idx").textContent = current + 1;
+  document.getElementById("a-total").textContent = QUEUE.length;
+  document.getElementById("a-richiesta").textContent = item.richiesta;
+  document.getElementById("a-preventivo-righe").innerHTML = renderRigheHtml(item.righe);
+  document.getElementById("a-verdetto-pill").innerHTML = pillHtml(item.verdetto);
+  document.getElementById("a-verdetto-testo").textContent = item.verdettoTesto;
+  document.getElementById("a-commento").value = "";
+  document.querySelectorAll("#a-preventivo-btns .choice-btn, #a-accordo-btns .choice-btn").forEach(b => b.className = "choice-btn");
+  document.getElementById("a-submit").disabled = true;
+
+  // --- B ---
+  document.getElementById("b-idx").textContent = current + 1;
+  document.getElementById("b-total").textContent = QUEUE.length;
+  document.getElementById("b-richiesta").textContent = item.richiesta;
+  document.getElementById("b-preventivo-righe").innerHTML = renderRigheHtml(item.righe);
+  document.getElementById("b-verdetto-pill-inline").innerHTML = pillHtml(item.verdetto);
+  document.getElementById("b-verdetto-testo").textContent = item.verdettoTesto;
+  document.getElementById("b-commento").value = "";
+  document.querySelectorAll("#b-preventivo-btns button, #b-accordo-btns button").forEach(b => b.className = "");
+  document.getElementById("b-submit").disabled = true;
+
+  // --- C ---
+  document.getElementById("c-idx").textContent = current + 1;
+  document.getElementById("c-total").textContent = QUEUE.length;
+  document.getElementById("c-richiesta").textContent = item.richiesta;
+  document.getElementById("c-righe").innerHTML = item.righe.map((r, i) => {
+    const annot = item.annotazioni[i];
+    const flag = annot && annot.includes("⚠");
+    return `<div class="c-line">
+      <div>${r.voce}${r.qta ? " · " + r.qta : ""}</div>
+      <div class="amount">${r.totale}</div>
+      <div class="c-annot ${flag ? "flag" : ""}">${annot || ""}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("c-commento").value = "";
+  document.querySelectorAll("#c-preventivo-toggle button, #c-accordo-toggle button").forEach(b => b.className = "");
+  document.getElementById("c-submit").disabled = true;
+}
+
+function wireChoiceGroup(containerIds, key, selClassPrefix, submitId, opts) {
+  containerIds.forEach(id => {
+    const container = document.getElementById(id);
+    container.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        container.querySelectorAll("button").forEach(b => b.classList.remove("sel-si", "sel-no", "sel-rivedere", "active-si", "active-no", "active-rivedere"));
+        btn.classList.add(selClassPrefix + btn.dataset.val);
+        state[key] = btn.dataset.val;
+        opts.onChange();
+      });
+    });
+  });
+}
+
+function checkSubmittable(prefix, submitId, commentoId) {
+  const commento = document.getElementById(commentoId).value.trim();
+  const needsComment = state.preventivo && state.preventivo !== "si";
+  const ok = state.preventivo && state.accordo && (!needsComment || commento.length > 0);
+  document.getElementById(submitId).disabled = !ok;
+}
+
+function advance() {
+  current = (current + 1) % QUEUE.length;
+  renderAll();
+  toast("Giudizio inviato — prossimo item caricato");
+}
+
+// --- wire A ---
+wireChoiceGroup(["a-preventivo-btns"], "preventivo", "sel-", "a-submit", { onChange: () => checkSubmittable("a", "a-submit", "a-commento") });
+wireChoiceGroup(["a-accordo-btns"], "accordo", "sel-", "a-submit", { onChange: () => checkSubmittable("a", "a-submit", "a-commento") });
+document.getElementById("a-commento").addEventListener("input", () => checkSubmittable("a", "a-submit", "a-commento"));
+document.getElementById("a-submit").addEventListener("click", advance);
+
+// --- wire B ---
+wireChoiceGroup(["b-preventivo-btns"], "preventivo", "sel-", "b-submit", { onChange: () => checkSubmittable("b", "b-submit", "b-commento") });
+wireChoiceGroup(["b-accordo-btns"], "accordo", "sel-", "b-submit", { onChange: () => checkSubmittable("b", "b-submit", "b-commento") });
+document.getElementById("b-commento").addEventListener("input", () => checkSubmittable("b", "b-submit", "b-commento"));
+document.getElementById("b-submit").addEventListener("click", advance);
+
+// --- wire C ---
+wireChoiceGroup(["c-preventivo-toggle"], "preventivo", "active-", "c-submit", { onChange: () => checkSubmittable("c", "c-submit", "c-commento") });
+wireChoiceGroup(["c-accordo-toggle"], "accordo", "active-", "c-submit", { onChange: () => checkSubmittable("c", "c-submit", "c-commento") });
+document.getElementById("c-commento").addEventListener("input", () => checkSubmittable("c", "c-submit", "c-commento"));
+document.getElementById("c-submit").addEventListener("click", advance);
+
+// ---- switcher ----
+const VARIANTS = [
+  { key: "a", name: "A — Tre colonne affiancate" },
+  { key: "b", name: "B — Stack verticale, bottom sheet mobile" },
+  { key: "c", name: "C — Annotazione inline per riga" },
+];
+
+function getVariantFromUrl() {
+  const p = new URLSearchParams(location.search).get("variant");
+  const idx = VARIANTS.findIndex(v => v.key === p);
+  return idx === -1 ? 0 : idx;
+}
+
+let variantIdx = getVariantFromUrl();
+
+function renderVariant() {
+  document.querySelectorAll(".variant").forEach(el => el.classList.remove("active"));
+  document.getElementById("variant-" + VARIANTS[variantIdx].key).classList.add("active");
+  document.getElementById("switcher-label").textContent = VARIANTS[variantIdx].name;
+  const url = new URL(location.href);
+  url.searchParams.set("variant", VARIANTS[variantIdx].key);
+  history.replaceState(null, "", url);
+}
+
+function cycle(delta) {
+  variantIdx = (variantIdx + delta + VARIANTS.length) % VARIANTS.length;
+  renderVariant();
+}
+
+document.getElementById("prev").addEventListener("click", () => cycle(-1));
+document.getElementById("next").addEventListener("click", () => cycle(1));
+document.addEventListener("keydown", (e) => {
+  const tag = document.activeElement.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || document.activeElement.isContentEditable) return;
+  if (e.key === "ArrowLeft") cycle(-1);
+  if (e.key === "ArrowRight") cycle(1);
+});
+
+renderAll();
+renderVariant();
+</script>
+</body>
+</html>

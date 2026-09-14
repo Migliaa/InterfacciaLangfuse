@@ -6,25 +6,48 @@ un verdetto su preventivi prodotti da un agente e già valutati da un giudice au
 ## Language
 
 **Preventivo**:
-L'oggetto da giudicare: l'output prodotto dall'esecutore per una richiesta di un cliente finto.
+La tabella di voci, quantità e prezzi che l'esecutore compone per rispondere a una richiesta
+cliente. È contenuto strutturato, non il documento finale da inviare.
 _Avoid_: Output, risposta dell'agente
 
+**Messaggio cliente**:
+Il testo dell'email personalizzata che l'esecutore scrive per accompagnare il preventivo verso
+il cliente finto — fa riferimento a quello che il cliente ha chiesto, non è un testo fisso.
+_Avoid_: Mail, copy (troppo generico)
+
+**Documento preventivo**:
+Il PDF con logo e intestazione aziendale che presenta il preventivo al cliente. Non è deciso
+dall'esecutore: è il risultato di un rendering deterministico (template fisso) a partire dal
+preventivo, senza intervento di un LLM — non c'è nulla da interpretare una volta che la tabella
+esiste, solo da impaginare.
+_Avoid_: PDF (va bene nei documenti tecnici, non come nome del ruolo nel dominio)
+
 **Esecutore**:
-L'agente che, data una richiesta, produce il preventivo. È uno dei due soggetti che il giudizio
-umano valuta implicitamente.
+L'agente che, data una richiesta, produce il preventivo e il messaggio cliente. È uno dei due
+soggetti che il giudizio umano valuta implicitamente. Non genera il documento preventivo (PDF):
+quello è un passo deterministico a valle.
 _Avoid_: Agente (troppo generico — nel progetto ci sono più agenti con ruoli distinti)
 
 **Giudice automatico**:
-L'agente LLM-as-judge che assegna un punteggio al preventivo prodotto dall'esecutore, prima che
-arrivi al giudice umano. È il secondo soggetto che il giudizio umano valuta implicitamente.
+L'agente LLM-as-judge che assegna un punteggio al preventivo e al messaggio cliente prodotti
+dall'esecutore, prima che arrivino al giudice umano — un verdetto solo, che guarda insieme numeri
+e testo dell'email, non un verdetto per componente. Non valuta il documento preventivo (PDF): un
+rendering deterministico non ha nulla da giudicare. È il secondo soggetto che il giudizio umano
+valuta implicitamente.
 _Avoid_: LLM-as-judge (termine tecnico Langfuse, va bene nei documenti tecnici ma non come nome
 del ruolo nel dominio), giudice (ambiguo con giudice umano)
 
 **Giudice umano**:
-La persona non tecnica che rivede preventivo e verdetto del giudice automatico tramite
-l'interfaccia "giudice", e dà il proprio verdetto finale. Il suo giudizio è il termine di
+La persona non tecnica che rivede richiesta, preventivo, documento preventivo, messaggio cliente
+e verdetto del giudice automatico tramite l'interfaccia "giudice", e dà il proprio verdetto
+finale su tutto l'insieme — non un verdetto per componente. Il suo giudizio è il termine di
 paragone sia per l'esecutore sia per il giudice automatico.
 _Avoid_: Revisore, annotatore (termine tecnico Langfuse)
+
+**Profilo azienda**:
+Nome, logo e dati di contatto finti usati solo dal rendering del documento preventivo. Statico,
+scritto una volta, non prodotto né letto dall'esecutore o dal giudice automatico.
+_Avoid_: Branding (termine generico, non specifico al progetto)
 
 **Catalogo**:
 L'elenco di servizi/voci di prezzo da cui l'esecutore compone un preventivo. Nel prototipo è
@@ -52,8 +75,15 @@ tecnico ma non come nome primario)
 - Struttura a doppio giudice: esecutore → giudice automatico → giudice umano.
 - L'esecutore genera il preventivo da zero a partire da una richiesta cliente finta (non
   corregge un preventivo preesistente).
+- L'esecutore produce due output testuali per ogni richiesta: il preventivo (tabella) e il
+  messaggio cliente (email personalizzata). Entrambi vengono valutati dal giudice automatico e
+  mostrati al giudice umano. Il documento preventivo (PDF) è invece un rendering deterministico
+  a valle, senza LLM — un template fisso con un profilo azienda finto, non un output
+  dell'esecutore e non qualcosa che il giudice automatico valuta.
 - Il giudice umano vede, affiancati nella stessa schermata: richiesta originale, preventivo
-  generato dall'esecutore, verdetto del giudice automatico.
+  (tabella o anteprima del documento preventivo), messaggio cliente, verdetto del giudice
+  automatico — perché deve approvare l'insieme che uscirebbe davvero verso il cliente, non solo
+  i numeri.
 - Il giudizio umano è espresso con due score config distinti: uno sul preventivo (sì/no/da
   rivedere + commento), uno sull'accordo col giudice automatico (sì/no) — quest'ultimo è ciò che
   rende possibile giudicare il giudice automatico senza doverlo dedurre da un commento libero.
@@ -79,6 +109,14 @@ tecnico ma non come nome primario)
   documentato e disaccoppiato dalla pipeline (es. file con una struttura definita + comando da
   eseguire) — non si costruisce una schermata di caricamento nell'interfaccia web ora, coerente
   con l'assenza di login e di deploy in questo prototipo.
+- Esecutore e giudice automatico girano entrambi tramite l'abbonamento Claude (Claude Code in
+  modalità non interattiva, `claude -p`, come sottoprocesso dalla pipeline Python), non tramite
+  una chiave API a consumo — coerente con l'obiettivo di automatizzare i costi già posto nel
+  caso d'uso a doppio giudice. Compromesso accettato: output testuale da vincolare bene nel
+  prompt invece di un JSON strutturato garantito da una API a chiamata diretta.
+- L'esperienza del giudice umano (layout, numero di click, feedback) passa da un prototipo
+  throwaway prima di scrivere in dettaglio i ticket dell'interfaccia — non affrontata solo con
+  criteri di accettazione scritti sulla carta.
 - Ricalibrazione: **fuori scope**, verificato. Andrea non vuole dimostrare che il giudizio umano
   modifichi il comportamento del giudice automatico entro questo progetto — è un processo
   separato, lato backend dell'AI engineer — a meno che non fosse un metodo standard e
