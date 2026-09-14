@@ -128,6 +128,26 @@ tecnico ma non come nome primario)
 - L'esperienza del giudice umano (layout, numero di click, feedback) passa da un prototipo
   throwaway prima di scrivere in dettaglio i ticket dell'interfaccia — non affrontata solo con
   criteri di accettazione scritti sulla carta.
+- **Variante di layout scelta: "tre colonne + area di lavoro"** — riga superiore con tre colonne
+  di sola lettura (richiesta, preventivo a schede tabella/documento, i due verdetti automatici);
+  sotto, un'area di lavoro divisa in due blocchi (giudizio sul preventivo; messaggio cliente
+  editabile + giudizio sul messaggio); in fondo una barra con "Invia mail" e "Registra giudizio e
+  passa al prossimo". Preferita alle altre due varianti provate (stack mobile a card; annotazione
+  inline riga per riga) perché il giudice umano qui usa lo strumento come lavoro vero più volte al
+  giorno da postazione fissa, non come controllo rapido da telefono: separare chiaramente "cosa
+  guardo" (le tre colonne) da "cosa faccio" (l'area di lavoro sotto) regge meglio quando i campi
+  di giudizio sono quattro più un testo editabile, rispetto a comprimere tutto in una sequenza
+  verticale o in annotazioni sparse riga per riga. Il prototipo throwaway (tre varianti, dati
+  finti) è archiviato sul branch `prototype/giudice-ui`, non su `main` — la variante vinta è
+  questa nota, non il codice del prototipo stesso.
+- **Stile visivo: white-label esplicito.** Il "chrome" dell'app giudice (bottoni, sfondo, colori
+  di stato sì/no/da rivedere) ha un'identità propria, neutra, non legata a nessuna azienda
+  cliente. Il documento preventivo — e per estensione il messaggio cliente, essendo entrambi
+  contenuto che uscirebbe verso IL cliente dell'azienda che usa lo strumento — porta invece il
+  profilo azienda (nome, logo, colore) come zona visivamente distinta e chiaramente sostituibile,
+  per comunicare a colpo d'occhio che quella parte si personalizza per l'azienda a cui il
+  prodotto viene offerto, mentre lo strumento di revisione resta lo stesso per tutti. Azienda
+  finta usata per il profilo: **ACME**.
 - Doppio verdetto (preventivo + messaggio cliente), sia per il giudice automatico sia per il
   giudice umano, incluso l'accordo — non un verdetto unico sull'insieme. Motivazione di Andrea:
   permette di capire dove ha sbagliato l'esecutore e filtrare di conseguenza su Langfuse.
