@@ -29,25 +29,36 @@ quello è un passo deterministico a valle.
 _Avoid_: Agente (troppo generico — nel progetto ci sono più agenti con ruoli distinti)
 
 **Giudice automatico**:
-L'agente LLM-as-judge che assegna un punteggio al preventivo e al messaggio cliente prodotti
-dall'esecutore, prima che arrivino al giudice umano — un verdetto solo, che guarda insieme numeri
-e testo dell'email, non un verdetto per componente. Non valuta il documento preventivo (PDF): un
-rendering deterministico non ha nulla da giudicare. È il secondo soggetto che il giudizio umano
-valuta implicitamente.
+L'agente LLM-as-judge che assegna **due verdetti distinti** — uno sul preventivo, uno sul
+messaggio cliente — ai contenuti prodotti dall'esecutore, prima che arrivino al giudice umano.
+Verdetti separati (non uno unico) per poter capire in quale dei due l'esecutore ha sbagliato e
+filtrare di conseguenza su Langfuse. Non valuta il documento preventivo (PDF): un rendering
+deterministico non ha nulla da giudicare. È il secondo soggetto che il giudizio umano valuta
+implicitamente, dimensione per dimensione.
 _Avoid_: LLM-as-judge (termine tecnico Langfuse, va bene nei documenti tecnici ma non come nome
 del ruolo nel dominio), giudice (ambiguo con giudice umano)
 
 **Giudice umano**:
 La persona non tecnica che rivede richiesta, preventivo, documento preventivo, messaggio cliente
-e verdetto del giudice automatico tramite l'interfaccia "giudice", e dà il proprio verdetto
-finale su tutto l'insieme — non un verdetto per componente. Il suo giudizio è il termine di
-paragone sia per l'esecutore sia per il giudice automatico.
+e i due verdetti del giudice automatico tramite l'interfaccia "giudice". Dà **due verdetti
+distinti** (uno sul preventivo, uno sul messaggio cliente, ciascuno sì/no/da rivedere + commento
+se non sì) e due giudizi di accordo separati col giudice automatico (uno per dimensione) — non un
+verdetto unico sull'insieme. Il suo giudizio è il termine di paragone sia per l'esecutore sia per
+il giudice automatico, dimensione per dimensione. Non è solo un revisore: è anche l'addetto che
+userebbe questa stessa schermata per il proprio lavoro reale (rivedere ed eventualmente correggere
+il messaggio cliente prima dell'invio).
 _Avoid_: Revisore, annotatore (termine tecnico Langfuse)
 
 **Profilo azienda**:
 Nome, logo e dati di contatto finti usati solo dal rendering del documento preventivo. Statico,
 scritto una volta, non prodotto né letto dall'esecutore o dal giudice automatico.
 _Avoid_: Branding (termine generico, non specifico al progetto)
+
+**Catalogo di riferimento**:
+La stessa vista del catalogo, resa consultabile dall'interfaccia al giudice umano durante la
+revisione — non un dato nuovo, solo il catalogo già esistente esposto in lettura nell'interfaccia,
+perché chi revisiona non deve ricordare i prezzi a memoria per giudicare un preventivo.
+_Avoid_: Listino prezzi (ridondante col termine Catalogo già scelto)
 
 **Catalogo**:
 L'elenco di servizi/voci di prezzo da cui l'esecutore compone un preventivo. Nel prototipo è
@@ -117,6 +128,19 @@ tecnico ma non come nome primario)
 - L'esperienza del giudice umano (layout, numero di click, feedback) passa da un prototipo
   throwaway prima di scrivere in dettaglio i ticket dell'interfaccia — non affrontata solo con
   criteri di accettazione scritti sulla carta.
+- Doppio verdetto (preventivo + messaggio cliente), sia per il giudice automatico sia per il
+  giudice umano, incluso l'accordo — non un verdetto unico sull'insieme. Motivazione di Andrea:
+  permette di capire dove ha sbagliato l'esecutore e filtrare di conseguenza su Langfuse.
+- Il giudice umano può modificare il testo del messaggio cliente direttamente nell'interfaccia
+  prima di un eventuale invio — non è un campo di sola lettura.
+- L'interfaccia ha un pulsante operativo "Invia mail", perché il giudice umano nel caso reale è
+  anche l'addetto che invia i preventivi, non solo chi li valuta per l'AI engineer. Resta uno
+  stub anche nel prodotto finale di questo progetto (non collegato a un servizio email reale) —
+  stessa logica di login e deploy: rimandato a un eventuale prodotto vero.
+- Catalogo di riferimento consultabile dall'interfaccia durante la revisione (lo stesso catalogo
+  già usato dalla pipeline, esposto in lettura). Nessun motore di sconti/pacchetti: non esistono
+  regole di scontistica definite da nessuna parte nel progetto, costruirle ora aprirebbe un
+  progetto a sé.
 - Ricalibrazione: **fuori scope**, verificato. Andrea non vuole dimostrare che il giudizio umano
   modifichi il comportamento del giudice automatico entro questo progetto — è un processo
   separato, lato backend dell'AI engineer — a meno che non fosse un metodo standard e
