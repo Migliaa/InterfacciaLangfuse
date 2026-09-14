@@ -328,7 +328,7 @@
 </div>
 
 <script>
-const AZIENDA = { nome: "Rossi Ristrutturazioni Srl", contatti: "Via Roma 12, 20100 Milano · P.IVA 01234567890 · info@rossiristrutturazioni.it", logoLetter: "R" };
+const AZIENDA = { nome: "ACME Srl", contatti: "Via dell'Industria 1, 20100 Milano · P.IVA 01234567890 · info@acme.it", logoLetter: "A" };
 
 const CATALOGO = [
   { voce: "Pittura lavabile bianca (mano 1+2)", prezzo: "12 €/mq" },
@@ -352,7 +352,7 @@ const QUEUE = [
     ],
     annotazioni: ["Coerente col catalogo", "Coerente", "Voce plausibile, standard"],
     verdettoPreventivo: { esito: "ok", testo: "Superficie e prezzi coerenti col catalogo. Nessuna voce mancante." },
-    messaggioDraft: "Buongiorno,\n\nin allegato trova il preventivo per la tinteggiatura del suo appartamento di 80 mq. Il lavoro prevede due mani di pittura lavabile bianca su pareti e soffitto, con stuccatura preventiva delle superfici.\n\nRestiamo a disposizione per fissare l'inizio lavori entro fine mese, come richiesto.\n\nCordiali saluti,\nRossi Ristrutturazioni",
+    messaggioDraft: "Buongiorno,\n\nin allegato trova il preventivo per la tinteggiatura del suo appartamento di 80 mq. Il lavoro prevede due mani di pittura lavabile bianca su pareti e soffitto, con stuccatura preventiva delle superfici.\n\nRestiamo a disposizione per fissare l'inizio lavori entro fine mese, come richiesto.\n\nCordiali saluti,\nACME",
     verdettoMessaggio: { esito: "ok", testo: "Tono professionale, cita correttamente tempistica e superficie richieste." },
     msgAnnot: "Nessuna criticità: riferimenti a superficie e tempistica corretti.",
   },
@@ -365,7 +365,7 @@ const QUEUE = [
     ],
     annotazioni: ["Prezzo unitario nella norma", "Coerente", "⚠ manca posa in opera nel totale"],
     verdettoPreventivo: { esito: "rivedere", testo: "Manca la voce di posa in opera, obbligatoria a catalogo per questo servizio." },
-    messaggioDraft: "Buongiorno,\n\nle confermiamo la sostituzione delle 6 finestre a doppio vetro, lavoro completabile entro 3 settimane come richiesto.\n\nCordiali saluti,\nRossi Ristrutturazioni",
+    messaggioDraft: "Buongiorno,\n\nle confermiamo la sostituzione delle 6 finestre a doppio vetro, lavoro completabile entro 3 settimane come richiesto.\n\nCordiali saluti,\nACME",
     verdettoMessaggio: { esito: "rivedere", testo: "Il messaggio non menziona la posa in opera, coerentemente mancante anche nel preventivo — rischio di sorpresa per il cliente a lavori iniziati." },
     msgAnnot: "⚠ Stesso problema del preventivo: nessun accenno alla posa in opera.",
   },
@@ -378,7 +378,7 @@ const QUEUE = [
     ],
     annotazioni: ["Coerente", "Maggiorazione da catalogo, corretta"],
     verdettoPreventivo: { esito: "ok", testo: "Prezzo e maggiorazione coerenti col catalogo. Richiesta soddisfatta." },
-    messaggioDraft: "Buongiorno,\n\nle inviamo il preventivo richiesto per la pulizia di fine cantiere del negozio. Il servizio verrà svolto nel weekend.\n\nCordiali saluti,\nRossi Ristrutturazioni",
+    messaggioDraft: "Buongiorno,\n\nle inviamo il preventivo richiesto per la pulizia di fine cantiere del negozio. Il servizio verrà svolto nel weekend.\n\nCordiali saluti,\nACME",
     verdettoMessaggio: { esito: "rivedere", testo: "Il messaggio non giustifica la maggiorazione weekend presente nel preventivo — rischio che il cliente la percepisca come ingiustificata leggendo solo l'email." },
     msgAnnot: "⚠ La maggiorazione weekend nel preventivo non è spiegata nel testo.",
   },
