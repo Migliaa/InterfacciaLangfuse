@@ -1,0 +1,29 @@
+"""Wrapper per invocare Claude Code in modalità non interattiva (abbonamento, non chiave API)."""
+import json
+import subprocess
+
+
+class ErroreClaudeCli(Exception):
+    pass
+
+
+def genera_testo(prompt: str, model: str = "sonnet", timeout: int = 180) -> str:
+    try:
+        risultato = subprocess.run(
+            ["claude", "-p", prompt, "--output-format", "json", "--model", model],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except FileNotFoundError as errore:
+        raise ErroreClaudeCli("comando 'claude' non trovato — è installato ed è nel PATH?") from errore
+
+    try:
+        dati = json.loads(risultato.stdout)
+    except json.JSONDecodeError as errore:
+        messaggio = risultato.stderr.strip() or risultato.stdout.strip() or "nessun output"
+        raise ErroreClaudeCli(f"output non JSON da Claude CLI (returncode {risultato.returncode}): {messaggio}") from errore
+
+    if dati.get("is_error"):
+        raise ErroreClaudeCli(dati.get("result", "errore sconosciuto da Claude CLI"))
+    return dati["result"]

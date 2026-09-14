@@ -1,0 +1,10 @@
+[
+  { "voce": "Pittura lavabile bianca (mano 1+2)", "unita": "mq", "prezzo_unitario": 12.0 },
+  { "voce": "Stuccatura e rasatura pareti", "unita": "mq", "prezzo_unitario": 4.0 },
+  { "voce": "Protezione pavimenti e mobili", "unita": "una tantum", "prezzo_unitario": 80.0 },
+  { "voce": "Finestra doppio vetro 120x150", "unita": "cad.", "prezzo_unitario": 450.0 },
+  { "voce": "Smontaggio e smaltimento vecchi infissi", "unita": "cad.", "prezzo_unitario": 60.0 },
+  { "voce": "Posa in opera infissi", "unita": "cad.", "prezzo_unitario": 70.0 },
+  { "voce": "Pulizia fine cantiere", "unita": "mq", "prezzo_unitario": 9.0 },
+  { "voce": "Maggiorazione weekend", "unita": "una tantum", "prezzo_unitario": 50.0 }
+]
