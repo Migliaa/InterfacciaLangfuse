@@ -161,6 +161,17 @@ tecnico ma non come nome primario)
   già usato dalla pipeline, esposto in lettura). Nessun motore di sconti/pacchetti: non esistono
   regole di scontistica definite da nessuna parte nel progetto, costruirle ora aprirebbe un
   progetto a sé.
+- **`claude -p` va invocato con `--safe-mode`** (non `--bare`): senza, il modello scopre il
+  `CLAUDE.md` di questo stesso repo e a volte si accorge di essere "Claude Code sul progetto
+  giudice", rifiutando di interpretare il ruolo di esecutore/giudice automatico. `--safe-mode`
+  disattiva CLAUDE.md/skill/plugin mantenendo l'autenticazione via abbonamento; `--bare` fa lo
+  stesso ma forza la chiave API, incompatibile con la decisione di usare l'abbonamento.
+- **Nota/limite noto**: rilanciare `run_pipeline.py` sulle stesse richieste non è idempotente a
+  livello di traccia — `create_trace_id` è derivato dall'id della richiesta (stesso id →
+  stessa traccia), ma i punteggi e l'accodamento in coda si sommano invece di sostituirsi. Non
+  richiesto dal ticket #2 (che copre solo l'idempotenza di score config e coda), ma da tenere a
+  mente eseguendo demo ripetute — svuotare la coda su Langfuse tra un'esecuzione e l'altra se il
+  duplicato dà fastidio.
 - Ricalibrazione: **fuori scope**, verificato. Andrea non vuole dimostrare che il giudizio umano
   modifichi il comportamento del giudice automatico entro questo progetto — è un processo
   separato, lato backend dell'AI engineer — a meno che non fosse un metodo standard e

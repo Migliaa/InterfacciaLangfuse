@@ -10,7 +10,12 @@ class ErroreClaudeCli(Exception):
 def genera_testo(prompt: str, model: str = "sonnet", timeout: int = 180) -> str:
     try:
         risultato = subprocess.run(
-            ["claude", "-p", prompt, "--output-format", "json", "--model", model],
+            # --safe-mode: disattiva CLAUDE.md/skill/plugin del progetto "giudice" — senza,
+            # il modello a volte si accorge di essere Claude Code sul repo e rifiuta di
+            # interpretare il ruolo (esecutore/giudice automatico), rispondendo di sé invece
+            # che con l'output richiesto. A differenza di --bare, lascia intatta
+            # l'autenticazione via abbonamento (--bare forza la chiave API).
+            ["claude", "--safe-mode", "-p", prompt, "--output-format", "json", "--model", model],
             capture_output=True,
             text=True,
             timeout=timeout,

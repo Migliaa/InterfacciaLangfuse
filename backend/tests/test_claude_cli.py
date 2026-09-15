@@ -26,6 +26,7 @@ def test_genera_testo_usa_il_modello_richiesto(mock_run):
     args = mock_run.call_args[0][0]
     assert "--model" in args and args[args.index("--model") + 1] == "sonnet"
     assert "-p" in args and "un prompt" in args
+    assert "--safe-mode" in args, "senza --safe-mode il modello scopre il CLAUDE.md del progetto ed esce dal ruolo"
 
 
 @patch("giudice_pipeline.claude_cli.subprocess.run")
