@@ -4,6 +4,8 @@ nei test."""
 from dataclasses import dataclass, field
 
 from langfuse.api.commons.types.config_category import ConfigCategory
+from langfuse.api.media.types.media_content_type import MediaContentType
+from langfuse.media import LangfuseMedia
 
 NOME_QUEUE = "revisione-preventivi"
 
@@ -41,6 +43,10 @@ class LangfuseGateway:
             risultati.extend(risposta.data)
             pagina += 1
         return risultati
+
+    def _osserva(self, *, name: str, as_type: str, input: dict, output: dict) -> None:
+        with self._client.start_as_current_observation(name=name, as_type=as_type, input=input, output=output):
+            pass
 
     def assicura_score_configs(self) -> dict[str, str]:
         esistenti = {c.name: c.id for c in self._tutte_le_pagine(self._client.api.score_configs.get)}
@@ -84,6 +90,7 @@ class LangfuseGateway:
         verdetto_messaggio: dict,
         score_config_ids: dict[str, str],
         queue_id: str,
+        documento_pdf: bytes | None = None,
     ) -> str:
         trace_id = self._client.create_trace_id(seed=richiesta["id"])
 
@@ -93,20 +100,31 @@ class LangfuseGateway:
             as_type="span",
             input={"richiesta": richiesta["testo"]},
         ):
-            with self._client.start_as_current_observation(
+            self._osserva(
                 name="esecutore",
                 as_type="generation",
                 input={"richiesta": richiesta["testo"]},
                 output={"preventivo": preventivo, "messaggio_cliente": messaggio_cliente},
-            ):
-                pass
-            with self._client.start_as_current_observation(
+            )
+            self._osserva(
                 name="giudice-automatico",
                 as_type="evaluator",
                 input={"preventivo": preventivo, "messaggio_cliente": messaggio_cliente},
                 output={"verdetto_preventivo": verdetto_preventivo, "verdetto_messaggio": verdetto_messaggio},
-            ):
-                pass
+            )
+            if documento_pdf is not None:
+                # Rendering deterministico (ticket #3): il documento è referenziato sulla
+                # traccia come media, così l'interfaccia può recuperarlo senza rigenerarlo.
+                self._osserva(
+                    name="documento-preventivo",
+                    as_type="span",
+                    input={},
+                    output={
+                        "documento": LangfuseMedia(
+                            content_bytes=documento_pdf, content_type=MediaContentType.APPLICATION_PDF
+                        )
+                    },
+                )
 
         self._client.create_score(
             trace_id=trace_id,

@@ -57,6 +57,23 @@ def test_esegui_pipeline_registra_ogni_richiesta_con_i_dati_giusti():
     assert kwargs_prima["verdetto_messaggio"]["esito"] == "si"
     assert kwargs_prima["queue_id"] == "queue-1"
     assert kwargs_prima["score_config_ids"] == gateway.assicura_score_configs.return_value
+    assert kwargs_prima["documento_pdf"] is None
+
+
+def test_esegui_pipeline_con_rendering_genera_il_documento_dal_preventivo_e_lo_passa_al_gateway():
+    gateway = _fake_gateway()
+    genera_documento = MagicMock(return_value=b"%PDF-contenuto-finto")
+
+    esegui_pipeline(
+        CATALOGO, RICHIESTE, _fake_esecutore, _fake_giudice, gateway, genera_documento=genera_documento
+    )
+
+    assert genera_documento.call_count == 2
+    args_prima, _ = genera_documento.call_args_list[0]
+    assert args_prima[0][0]["totale"] == 960.0
+
+    _, kwargs_prima = gateway.registra_richiesta.call_args_list[0]
+    assert kwargs_prima["documento_pdf"] == b"%PDF-contenuto-finto"
 
 
 def test_esegui_pipeline_con_richieste_vuote_assicura_comunque_config_e_coda():

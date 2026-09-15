@@ -2,7 +2,12 @@ import json
 
 import pytest
 
-from giudice_pipeline.dati import carica_catalogo, carica_richieste, formatta_catalogo
+from giudice_pipeline.dati import (
+    carica_catalogo,
+    carica_profilo_azienda,
+    carica_richieste,
+    formatta_catalogo,
+)
 
 
 def test_carica_richieste_rifiuta_voce_senza_id(tmp_path):
@@ -33,3 +38,15 @@ def test_carica_catalogo_reale_e_valido():
 def test_formatta_catalogo():
     catalogo = [{"voce": "Pittura", "unita": "mq", "prezzo_unitario": 12.0}]
     assert formatta_catalogo(catalogo) == "- Pittura (mq): 12.0"
+
+
+def test_carica_profilo_azienda_rifiuta_profilo_senza_colore(tmp_path):
+    percorso = tmp_path / "profilo_azienda.json"
+    percorso.write_text(json.dumps({"nome": "ACME", "email": "a@a.it", "telefono": "123"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="colore"):
+        carica_profilo_azienda(percorso)
+
+
+def test_carica_profilo_azienda_reale_e_valido():
+    profilo = carica_profilo_azienda()
+    assert profilo["nome"] == "ACME"

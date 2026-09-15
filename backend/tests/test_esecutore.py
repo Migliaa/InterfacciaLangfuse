@@ -53,3 +53,12 @@ def test_genera_preventivo_e_messaggio_rifiuta_riga_senza_totale():
     }
     with pytest.raises(ValueError, match="totale"):
         genera_preventivo_e_messaggio(RICHIESTA, CATALOGO, chiama_llm=_fake_llm(risposta))
+
+
+def test_genera_preventivo_e_messaggio_rifiuta_riga_con_totale_non_numerico():
+    risposta = {
+        "preventivo": [{"voce": "Pittura lavabile bianca", "quantita": 80, "prezzo_unitario": 12.0, "totale": "960.0"}],
+        "messaggio_cliente": "x",
+    }
+    with pytest.raises(ValueError, match="non numerici"):
+        genera_preventivo_e_messaggio(RICHIESTA, CATALOGO, chiama_llm=_fake_llm(risposta))

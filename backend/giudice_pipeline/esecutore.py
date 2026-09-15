@@ -31,11 +31,19 @@ Richiesta del cliente:
 """
 
 
+_CAMPI_NUMERICI_RIGA_PREVENTIVO = ("quantita", "prezzo_unitario", "totale")
+
+
 def _valida_preventivo(preventivo: list[dict]) -> None:
     for i, riga in enumerate(preventivo):
         mancanti = [c for c in _CAMPI_RIGA_PREVENTIVO if c not in riga]
         if mancanti:
             raise ValueError(f"riga di preventivo #{i} priva dei campi {mancanti}: {riga}")
+        non_numerici = [
+            c for c in _CAMPI_NUMERICI_RIGA_PREVENTIVO if isinstance(riga[c], bool) or not isinstance(riga[c], (int, float))
+        ]
+        if non_numerici:
+            raise ValueError(f"riga di preventivo #{i} con campi non numerici {non_numerici}: {riga}")
 
 
 def genera_preventivo_e_messaggio(

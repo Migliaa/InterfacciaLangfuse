@@ -23,3 +23,18 @@ Lista di richieste cliente finte, ciascuna un input di partenza per l'esecutore:
   { "id": "identificatore univoco", "testo": "richiesta scritta in linguaggio naturale" }
 ]
 ```
+
+## `profilo_azienda.json`
+
+Il profilo azienda (finto, "ACME") usato solo dal rendering del documento preventivo — nome,
+colore e contatti che comparirebbero nell'intestazione del PDF. Un'azienda reale sostituisce
+questo file, non `giudice_pipeline/documento.py`:
+
+```json
+{
+  "nome": "Nome azienda",
+  "colore": "#RRGGBB",
+  "email": "contatto@azienda.it",
+  "telefono": "+39 ..."
+}
+```

@@ -8,13 +8,15 @@ Uso:
 Richiede LANGFUSE_HOST, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY come variabili d'ambiente
 (vedi .env.example alla radice del repo) e un login valido di `claude` (abbonamento, non chiave
 API — vedi CONTEXT.md per la motivazione)."""
+import functools
 import os
 import sys
 
 from dotenv import load_dotenv
 from langfuse import Langfuse
 
-from giudice_pipeline.dati import carica_catalogo, carica_richieste
+from giudice_pipeline.dati import carica_catalogo, carica_profilo_azienda, carica_richieste
+from giudice_pipeline.documento import genera_documento_preventivo
 from giudice_pipeline.esecutore import genera_preventivo_e_messaggio
 from giudice_pipeline.giudice_automatico import valuta
 from giudice_pipeline.langfuse_gateway import LangfuseGateway
@@ -38,9 +40,12 @@ def main() -> int:
 
     catalogo = carica_catalogo()
     richieste = carica_richieste()
+    genera_documento = functools.partial(genera_documento_preventivo, profilo_azienda=carica_profilo_azienda())
 
     print(f"Elaboro {len(richieste)} richieste...")
-    trace_ids = esegui_pipeline(catalogo, richieste, genera_preventivo_e_messaggio, valuta, gateway)
+    trace_ids = esegui_pipeline(
+        catalogo, richieste, genera_preventivo_e_messaggio, valuta, gateway, genera_documento=genera_documento
+    )
     client.flush()
 
     for richiesta, trace_id in zip(richieste, trace_ids):

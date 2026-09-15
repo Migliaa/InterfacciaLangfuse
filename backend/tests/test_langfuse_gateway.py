@@ -1,6 +1,8 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+from langfuse.media import LangfuseMedia
+
 from giudice_pipeline.langfuse_gateway import NOME_QUEUE, SCORE_CONFIGS, LangfuseGateway
 
 RICHIESTA = {"id": "r1", "testo": "Vorrei tinteggiare 80 mq"}
@@ -133,3 +135,48 @@ def test_registra_richiesta_scrive_due_score_e_accoda_la_traccia():
     assert kwargs["queue_id"] == "queue-1"
     assert kwargs["object_id"] == "trace-1"
     assert kwargs["object_type"] == "TRACE"
+
+
+def test_registra_richiesta_senza_documento_non_crea_losservazione_documento():
+    client = _client_senza_config_esistenti()
+    gateway = LangfuseGateway(client)
+    score_config_ids = {"verdetto_preventivo": "cfg-1", "verdetto_messaggio": "cfg-2",
+                         "accordo_preventivo": "cfg-3", "accordo_messaggio": "cfg-4"}
+
+    gateway.registra_richiesta(
+        richiesta=RICHIESTA,
+        preventivo=PREVENTIVO,
+        messaggio_cliente=MESSAGGIO,
+        verdetto_preventivo=VERDETTO_PREVENTIVO,
+        verdetto_messaggio=VERDETTO_MESSAGGIO,
+        score_config_ids=score_config_ids,
+        queue_id="queue-1",
+    )
+
+    nomi_osservazioni = [kw["name"] for _, kw in client.start_as_current_observation.call_args_list]
+    assert "documento-preventivo" not in nomi_osservazioni
+
+
+def test_registra_richiesta_con_documento_lo_referenzia_come_media_sulla_traccia():
+    client = _client_senza_config_esistenti()
+    gateway = LangfuseGateway(client)
+    score_config_ids = {"verdetto_preventivo": "cfg-1", "verdetto_messaggio": "cfg-2",
+                         "accordo_preventivo": "cfg-3", "accordo_messaggio": "cfg-4"}
+
+    gateway.registra_richiesta(
+        richiesta=RICHIESTA,
+        preventivo=PREVENTIVO,
+        messaggio_cliente=MESSAGGIO,
+        verdetto_preventivo=VERDETTO_PREVENTIVO,
+        verdetto_messaggio=VERDETTO_MESSAGGIO,
+        score_config_ids=score_config_ids,
+        queue_id="queue-1",
+        documento_pdf=b"%PDF-contenuto-finto",
+    )
+
+    chiamate_per_nome = {kw["name"]: kw for _, kw in client.start_as_current_observation.call_args_list}
+    assert "documento-preventivo" in chiamate_per_nome
+    media = chiamate_per_nome["documento-preventivo"]["output"]["documento"]
+    assert isinstance(media, LangfuseMedia)
+    assert media._content_bytes == b"%PDF-contenuto-finto"
+    assert media._content_type == "application/pdf"

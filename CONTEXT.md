@@ -183,3 +183,16 @@ tecnico ma non come nome primario)
   etichette umane, calcolo dell'accordo), non sulla correzione. Il prototipo si ferma quindi a
   raccogliere i punteggi umani (`source: ANNOTATION`) leggibili via API — la loro lettura per
   correggere il giudice resta un passo manuale futuro, non costruito qui.
+- **Ticket #3 (documento preventivo, PDF) implementato.** Rendering con `reportlab` in
+  `backend/giudice_pipeline/documento.py`, nessuna dipendenza da un client LLM (verificato via
+  AST nei test). Profilo azienda finto (ACME) in `backend/data/profilo_azienda.json`, caricato
+  con lo stesso pattern di validazione di catalogo e richieste. Il PDF è referenziato sulla
+  traccia Langfuse come media (`LangfuseMedia`, `application/pdf`) in un'osservazione
+  `documento-preventivo` — verificato con una chiamata reale che il riferimento è recuperabile
+  dalla traccia via API. `esegui_pipeline` prende un solo parametro opzionale `genera_documento`
+  (già bindato al profilo azienda da `run_pipeline.py` tramite `functools.partial`), non due
+  parametri separati: evita uno stato illegale rappresentabile (documento richiesto ma profilo
+  assente). Validazione dei tipi numerici del preventivo spostata in `esecutore.py`
+  (`_valida_preventivo`), non nel modulo di rendering: fail-fast dove il dato viene prodotto.
+  Dettagli del processo (bug trovati in review, decisioni di refactor) in `DIARIO.md`, non
+  ripetuti qui.
