@@ -12,9 +12,22 @@ esistenti) — non deve comparire nel testo rivolto al pubblico del sito.
 
 Diverso da `tassonomia` e `metodo`: qui il centro del progetto è lo strumento stesso, non
 un'analisi da leggere (deciso in `CONTEXT.md`). Non c'è un formato lungo prosa+figure — solo il
-report breve, 244 parole, con quattro sezioni esplicite (problema, destinatari, funzionalità,
+report breve, 317 parole, con quattro sezioni esplicite (problema, destinatari, funzionalità,
 personalizzazione), senza sezioni da dividere fra home e pubblicazione estesa: è già la lunghezza
 di un blocco da home.
+
+## Provalo tu stesso
+
+L'interfaccia ha una **modalità demo**: se non trova credenziali Langfuse configurate (caso
+normale per chiunque clona il repo senza un proprio progetto Langfuse) mostra tre item fittizzi
+al posto di un errore, con un banner che lo dichiara esplicitamente. Chi vuole provarlo — un
+recruiter, chiunque legga il sito — clona il repo ed esegue `npm install && npm run dev` dentro
+`frontend/`: nessuna configurazione richiesta. Un popup all'apertura spiega cosa succede dietro
+le quinte (il collegamento a Langfuse, a cosa serve all'ingegnere AI), non come si usano i
+pulsanti — resta implicito che chi arriva sappia usare un'interfaccia web.
+
+Se la pagina del sito rimanda a "provalo tu stesso", questo comando è il modo corretto di
+formularlo, dato che non esiste un link pubblico (vedi sotto).
 
 Non leggere `DIARIO.md`, `CONTEXT.md`, `BRIEF.md`, né `frontend/`/`backend/`: sono lavoro interno.
 

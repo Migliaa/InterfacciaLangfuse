@@ -261,3 +261,78 @@ button:disabled {
 .muto {
   color: var(--muted);
 }
+
+.intestazione {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.intestazione strong {
+  font-size: 16px;
+}
+
+.sottotitolo {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.banner-demo {
+  max-width: 1400px;
+  margin: 16px auto 0;
+  padding: 10px 16px;
+  border: 1px dashed var(--warn);
+  border-radius: 8px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 28, 26, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+}
+
+.popup-riquadro {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 480px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.popup-riquadro h2 {
+  margin: 0 0 14px;
+}
+
+.popup-riquadro p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.popup-nota-demo {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.popup-chiudi {
+  margin-top: 6px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}

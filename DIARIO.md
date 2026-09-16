@@ -146,4 +146,26 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   pubblico, non rinominata la cartella/repo `giudice` per non rompere link e commit esistenti,
   annotato in `CONSEGNA.md`) e sezione "Quale problema risolve" ridotta a massimo 50 parole (47
   nella versione finale), spostando i dettagli tolti nelle sezioni "A chi è indirizzato" e
-  "Funzionalità". Versione finale: 244 parole.
+  "Funzionalità". Aggiunta poi una sottosezione di funzionalità lato ingegnere AI (tracciabilità
+  costi/accuratezza, punteggi umani come base per intervenire sul comportamento di agente e
+  giudice automatico) — Andrea l'ha chiesta esplicitamente notando che il report parlava quasi
+  solo del lato revisore. Versione finale del report: 317 parole totali, 47 nella sezione
+  problema.
+- **2026-09-16, modalità demo + tutorial in-app.** Su richiesta di Andrea, per far provare
+  l'interfaccia a chi non ha credenziali Langfuse (es. un recruiter): `frontend/lib/demo.ts`
+  (tre item fittizzi con esiti diversi — "sì" e "da rivedere" su entrambe le dimensioni — più un
+  catalogo fittizio; nessun segreto, sicuro da importare anche lato client) e
+  `registraGiudizioDemo`, che cicla sui tre item in memoria senza nessuna scrittura reale.
+  `app/page.tsx` entra in modalità demo quando `LANGFUSE_HOST`/`LANGFUSE_PUBLIC_KEY`/
+  `LANGFUSE_SECRET_KEY` non sono configurate, invece di sollevare l'errore di configurazione —
+  mostra un banner non richiudibile che lo dichiara esplicitamente, per non far credere che sia
+  la cosa vera. Aggiunto `TutorialPopup.tsx` (client, dismissibile, nessuna persistenza): un
+  popup che spiega — su richiesta esplicita di Andrea, che ha insistito di NON spiegare il
+  funzionamento dei pulsanti (dato per scontato) ma "il backend" — che le valutazioni scritte qui
+  finiscono su Langfuse, la piattaforma con cui un ingegnere AI traccia costi e accuratezza degli
+  agenti e decide dove intervenire. Aggiunta una piccola intestazione col nome del prodotto
+  ("Ultima Parola") in `app/layout.tsx`, coerente col rebranding del report. 4 nuovi test
+  (cicalo demo con wraparound, rendering della pagina in modalità demo, apertura/chiusura del
+  popup) — 22 totali, `tsc`/`next build` puliti. Verificato a schermo in modalità reale
+  (popup ed etichetta corretti); la modalità demo verificata solo via test automatico, non a
+  schermo, per non dover toccare temporaneamente il file `.env` con le credenziali reali.

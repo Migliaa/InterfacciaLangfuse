@@ -10,7 +10,9 @@ npm install
 ```
 
 Le credenziali sono in `../.env` (stesso file usato dal backend Python, non duplicato qui):
-`LANGFUSE_HOST`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`.
+`LANGFUSE_HOST`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`. Se mancano, l'interfaccia parte
+comunque in **modalità demo**: dati fittizzi (`lib/demo.ts`), nessuna connessione reale a
+Langfuse — utile per provare l'interfaccia senza un progetto Langfuse configurato.
 
 ## Sviluppo
 

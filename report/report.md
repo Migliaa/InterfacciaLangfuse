@@ -12,16 +12,25 @@ senza formazione tecnica: un addetto commerciale, amministrativo o di back offic
 AI.
 
 **Funzionalità:**
-Collega gli strumenti di osservabilità dell'agente (tracce, punteggi, coda di revisione su
-Langfuse) a una schermata utilizzabile senza formazione tecnica.
+
+Per chi revisiona:
 - Mostra affiancati richiesta originale, preventivo generato, documento pronto per l'invio e
   verdetto di un giudice automatico su due dimensioni separate: contenuto del preventivo, tono
   del messaggio al cliente.
 - Il messaggio al cliente è modificabile direttamente nell'interfaccia prima dell'invio.
-- Chi controlla esprime un giudizio su ciascuna delle due dimensioni, con commento obbligatorio
-  quando dissente dal verdetto automatico.
+- Un giudizio su ciascuna delle due dimensioni, con commento obbligatorio quando dissente dal
+  verdetto automatico.
 - Un clic registra il giudizio e carica l'item successivo della coda.
 - "Invia mail" è uno stub: conferma a schermo, nessun invio reale.
+
+Per l'ingegnere AI, tramite il collegamento a Langfuse (la piattaforma di osservabilità che gestisce
+coda, tracce e punteggi — non ricostruita da zero):
+- Ogni giudizio umano si registra come punteggio tracciabile insieme a quello del giudice
+  automatico, sulla stessa traccia che documenta l'intera esecuzione dell'agente.
+- Costi e accuratezza di ogni esecuzione restano tracciati sulla piattaforma già usata per la
+  manutenzione ordinaria degli agenti, senza un sistema di log separato.
+- I punteggi umani raccolti sono la base per intervenire sul comportamento dell'agente o del
+  giudice automatico quando i due giudizi divergono.
 
 **Personalizzazione:**
 Catalogo prezzi e profilo aziendale del documento (il logo e i dati che compaiono sul preventivo)
