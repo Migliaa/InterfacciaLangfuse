@@ -95,3 +95,42 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   parallelizzazione della catena coda→traccia→media): la catena è per costruzione sequenziale
   (ogni chiamata usa l'id restituito dalla precedente), il traffico atteso è un singolo revisore
   umano, e introdurre l'SDK per sole quattro GET non avrebbe ridotto rischio reale.
+- **2026-09-16, ticket #5 — giudizio umano, modifica messaggio, invio e avanzamento.** Resa
+  interattiva l'area di lavoro di `ItemDaRivedereView.tsx`, finora statica: i quattro giudizi
+  (esito+commento preventivo, esito+commento messaggio, accordo preventivo, accordo messaggio)
+  con stato React, commento obbligatorio se l'esito non è "sì", pulsante di registrazione
+  abilitato solo a moduli completi; campo messaggio cliente reso modificabile; "Invia mail" resta
+  uno stub (conferma a schermo, nessuna chiamata di rete, per design — fuori scope come login e
+  deploy). Estesa `trovaProssimaTracciaDaGiudicare` (rinominata `trovaProssimoItemCoda`) per
+  restituire anche l'id dell'item di coda, non solo il trace id: serviva per la `PATCH .../items/
+  {id}` che marca l'item `COMPLETED` dopo il giudizio. Aggiunta `registraGiudizioUmano` in
+  `lib/langfuse.ts`: scrive i quattro score umani (`source: ANNOTATION`, a differenza dei
+  punteggi automatici del backend con `source: API`) risolvendo i `configId` per nome da
+  `GET /api/public/score-configs` (stesse config già create da `assicura_score_configs()` lato
+  backend, non ricreate), marca l'item completato, poi ricarica il prossimo item della coda.
+  Introdotta `frontend/lib/azioni.ts` (`"use server"`) come unico punto di ingresso lato client
+  per l'azione di scrittura, così le chiavi Langfuse restano lato server come nel ticket #4 —
+  passata come prop (server action come prop a un client component) invece che importata
+  direttamente nel componente, per poter testare quest'ultimo passando un mock plain async
+  function senza dover mockare il modulo server. TDD sulla logica di validazione dei quattro
+  giudizi prima del componente. 18 test (9 nuovi), `tsc`/`next build` puliti. Verificato
+  end-to-end più volte contro Langfuse Cloud reale con `next start` (non `next dev`: l'HMR via
+  websocket non funziona nell'ambiente del pannello browser di questa sessione e produceva un
+  loop di reload continuo che impediva l'idratazione React — non un bug del codice, un limite
+  dell'ambiente di anteprima; annotato per non ripetere il debug la prossima volta) — un giudizio
+  completo scrive i quattro score, marca l'item completato e la coda avanza a un item
+  genuinamente diverso. Code review con 8 agenti in parallelo: 8 problemi trovati e corretti,
+  il più serio dei quali silenzioso — il testo del messaggio cliente modificato dal giudice non
+  veniva mai incluso nel payload di scrittura né usato da "Invia mail", quindi la correzione
+  spariva senza avviso; risolto allegandolo come `metadata` allo score `verdetto_messaggio` (unico
+  posto sensato per conservarlo, dato che non esiste un canale di invio reale). Trovata e corretta
+  anche una scrittura non atomica dei quattro score (`Promise.all` senza `id` deterministico:
+  un fallimento parziale seguito da un retry duplicava gli score già scritti) — passata a
+  `Promise.allSettled` con un `id` deterministico (`{idTraccia}-{nome}`) per rendere il retry
+  idempotente. Altri fix: quattro chiamate ridondanti a `/score-configs` per submission ridotte a
+  una sola, chiamata duplicata a `trovaIdCoda` eliminata, `<main>` annidato nello stato vuoto,
+  messaggio d'errore generico sostituito da quello specifico lanciato dal livello dati,
+  `GruppoEsito`/`GruppoAccordo` unificati in un solo componente generico, un fallback silenzioso
+  nell'helper di mock dei test che poteva nascondere un mock POST/PATCH mancante. Con questo
+  ticket lo strumento è funzionalmente completo secondo la spec (issue #1): resta da scrivere
+  `report/report.md` + `CONSEGNA.md`.

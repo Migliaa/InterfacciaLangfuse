@@ -177,6 +177,29 @@ body {
   background: white;
   font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.gruppo-scelte button.selezionata {
+  border-color: var(--accent);
+  background: #eff6ff;
+  color: var(--accent);
+}
+
+.testo-errore {
+  color: var(--bad);
+  font-weight: 600;
+  max-width: 1400px;
+  margin: 12px auto 0;
+  padding: 0 24px;
+}
+
+.testo-conferma {
+  color: var(--ok);
+  font-weight: 600;
+  max-width: 1400px;
+  margin: 12px auto 0;
+  padding: 0 24px;
 }
 
 textarea {

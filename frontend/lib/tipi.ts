@@ -11,6 +11,8 @@ export type Verdetto = {
 };
 
 export type ItemDaRivedere = {
+  idTraccia: string;
+  idItemCoda: string;
   richiestaCliente: string;
   preventivo: RigaPreventivo[];
   messaggioCliente: string;
@@ -23,4 +25,16 @@ export type VoceCatalogo = {
   voce: string;
   unita: string;
   prezzo_unitario: number;
+};
+
+export type GiudizioUmano = {
+  idTraccia: string;
+  idItemCoda: string;
+  esitoPreventivo: Verdetto["esito"];
+  commentoPreventivo: string;
+  accordoPreventivo: boolean;
+  esitoMessaggio: Verdetto["esito"];
+  commentoMessaggio: string;
+  accordoMessaggio: boolean;
+  messaggioClienteCorretto: string;
 };

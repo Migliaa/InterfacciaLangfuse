@@ -11,7 +11,7 @@ const RISPOSTE: Record<string, unknown> = {
     data: [{ id: "queue-1", name: "revisione-preventivi" }],
   },
   "/api/public/annotation-queues/queue-1/items?status=PENDING&limit=1&page=1": {
-    data: [{ objectId: "trace-1" }],
+    data: [{ id: "item-1", objectId: "trace-1" }],
   },
   "/api/public/traces/trace-1": {
     observations: [
@@ -54,7 +54,7 @@ describe("lettura dell'item di coda", () => {
     const item = await caricaProssimoItemDaRivedere();
     expect(item).not.toBeNull();
 
-    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} />);
+    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} registraGiudizio={async () => null} />);
 
     expect(screen.getByText("Vorrei tinteggiare 80 mq")).toBeInTheDocument();
     expect(screen.getByText(/Pittura lavabile bianca/)).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("lettura dell'item di coda", () => {
 
   it("il catalogo di riferimento resta nascosto finché non viene richiamato esplicitamente", async () => {
     const item = await caricaProssimoItemDaRivedere();
-    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} />);
+    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} registraGiudizio={async () => null} />);
 
     expect(screen.queryByText(/€ \/ mq/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Vedi catalogo di riferimento"));
@@ -81,7 +81,7 @@ describe("lettura dell'item di coda", () => {
 
   it("non mostra terminologia tecnica Langfuse", async () => {
     const item = await caricaProssimoItemDaRivedere();
-    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} />);
+    render(<ItemDaRivedereView item={item!} catalogo={caricaCatalogo()} registraGiudizio={async () => null} />);
 
     const testoPagina = (document.body.textContent ?? "").toLowerCase();
     for (const termine of ["trace", "observation", "score config", "queue"]) {

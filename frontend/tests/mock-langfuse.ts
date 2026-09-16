@@ -3,19 +3,24 @@ import { vi } from "vitest";
 export const HOST = "https://langfuse.test";
 
 /** Mocka `global.fetch` con una mappa percorso → corpo JSON, per non fare chiamate reali a
- * Langfuse nei test. Condiviso tra i test di `lib/langfuse.ts` e quelli del componente. */
+ * Langfuse nei test. Condiviso tra i test di `lib/langfuse.ts` e quelli del componente. Le
+ * chiamate GET si cercano per solo percorso (compatibilità coi mock esistenti); le chiamate con
+ * un metodo diverso (POST, PATCH) si cercano SOLO con la chiave `"METODO percorso"` — niente
+ * fallback sul percorso nudo, altrimenti una scrittura senza mock proprio restituirebbe in
+ * silenzio la risposta mockata per la GET sullo stesso path invece di far fallire il test.
+ * Restituisce il mock per permettere ai test di ispezionare le chiamate (`fetchMock.mock.calls`). */
 export function mockaFetchLangfuse(risposte: Record<string, unknown>) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn((url: string) => {
-      const percorso = url.replace(HOST, "");
-      const corpo = risposte[percorso];
-      if (corpo === undefined) throw new Error(`URL non mockato nel test: ${url}`);
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve(corpo),
-      } as Response);
-    })
-  );
+  const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+    const percorso = url.replace(HOST, "");
+    const metodo = init?.method ?? "GET";
+    const corpo = metodo === "GET" ? risposte[percorso] : risposte[`${metodo} ${percorso}`];
+    if (corpo === undefined) throw new Error(`URL non mockato nel test: ${metodo} ${url}`);
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(corpo),
+    } as Response);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
 }

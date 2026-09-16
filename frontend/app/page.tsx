@@ -1,4 +1,5 @@
 import { ItemDaRivedereView } from "@/components/ItemDaRivedereView";
+import { registraGiudizioUmano } from "@/lib/azioni";
 import { caricaCatalogo } from "@/lib/catalogo";
 import { caricaProssimoItemDaRivedere } from "@/lib/langfuse";
 
@@ -15,7 +16,7 @@ export default async function Pagina() {
 
   return (
     <main>
-      <ItemDaRivedereView item={item} catalogo={catalogo} />
+      <ItemDaRivedereView item={item} catalogo={catalogo} registraGiudizio={registraGiudizioUmano} />
     </main>
   );
 }
