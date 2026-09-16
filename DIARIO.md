@@ -140,5 +140,10 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   riscriverla con sezioni distinte ("Quale problema risolve", "A chi è indirizzato",
   "Funzionalità", "Personalizzazione") e di togliere le frasi autoconclusive che non aggiungono
   informazione (es. "la fiducia in un processo automatizzato dipende da questo controllo quanto
-  dalla qualità del modello che lo alimenta") — tono neutro, non promozionale. Versione finale:
-  260 parole.
+  dalla qualità del modello che lo alimenta") — tono neutro, non promozionale. Poi due richieste
+  ulteriori: nome del prodotto da rivedere (proposte "Controllo Umano" / "Ultima Parola" /
+  "Presidio" via AskUserQuestion, scelta **"Ultima Parola"** — resta solo per il testo rivolto al
+  pubblico, non rinominata la cartella/repo `giudice` per non rompere link e commit esistenti,
+  annotato in `CONSEGNA.md`) e sezione "Quale problema risolve" ridotta a massimo 50 parole (47
+  nella versione finale), spostando i dettagli tolti nelle sezioni "A chi è indirizzato" e
+  "Funzionalità". Versione finale: 244 parole.

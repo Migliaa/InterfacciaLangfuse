@@ -2,28 +2,36 @@
 
 Per la sessione del sito. Tutto quello che serve sta in `Progetti/giudice/report/report.md`.
 
+## Nome del prodotto
+
+Il prodotto va presentato come **"Ultima Parola"**, non come "giudice". "giudice" resta solo il
+nome interno della cartella e del repository (rinominarli non vale l'attrito con link e commit
+esistenti) — non deve comparire nel testo rivolto al pubblico del sito.
+
 ## Formato di consegna
 
 Diverso da `tassonomia` e `metodo`: qui il centro del progetto è lo strumento stesso, non
 un'analisi da leggere (deciso in `CONTEXT.md`). Non c'è un formato lungo prosa+figure — solo il
-report breve, 299 parole, già editoriale, senza sezioni da dividere fra home e pubblicazione
-estesa: è già la lunghezza di un blocco da home.
+report breve, 244 parole, con quattro sezioni esplicite (problema, destinatari, funzionalità,
+personalizzazione), senza sezioni da dividere fra home e pubblicazione estesa: è già la lunghezza
+di un blocco da home.
 
 Non leggere `DIARIO.md`, `CONTEXT.md`, `BRIEF.md`, né `frontend/`/`backend/`: sono lavoro interno.
 
 ## Vincoli sul testo
 
 Nessuna sezione pre-approvata da riscrivere: il report è nuovo, non derivato da un testo
-precedente. Lo stile segue le preferenze in `~/.claude/CLAUDE.md` (periodi lunghi e coesi, niente
-frasi brevi rafforzative, niente tono da vendita) — se lo si adatta al taglio del sito, mantenere
-lo stesso registro.
+precedente. Tono neutro, non promozionale — Andrea ha chiesto esplicitamente di togliere ogni
+frase che suoni come pubblicità del prodotto, mantenere quella scelta se il testo viene adattato
+al taglio del sito.
 
 ## Nessuna figura
 
 Il report non ha figure. Se la pagina del sito ne vuole una, uno screenshot reale
 dell'interfaccia (schermata a tre colonne + area di lavoro, con un item di prova) comunicherebbe
 più di un diagramma — non esiste ancora, andrebbe catturato lanciando `npm run dev` in
-`frontend/` con un item in coda.
+`frontend/` con un item in coda. Attenzione a non far comparire "giudice" nello screenshot se
+diventa visibile nel markup (titolo pagina, ecc.) senza controllarlo prima.
 
 ## Cose da sapere
 
@@ -36,5 +44,5 @@ più di un diagramma — non esiste ancora, andrebbe catturato lanciando `npm ru
 
 ## Da aggiornare in `SitoPersonale/PROGETTI.md`
 
-La riga di `giudice` va aggiornata a "completato" — la sessione del sito decide la formulazione
-esatta.
+La riga va aggiornata a "completato", col nome **"Ultima Parola"** — la sessione del sito decide
+la formulazione esatta.
