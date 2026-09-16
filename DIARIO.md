@@ -134,7 +134,11 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   nell'helper di mock dei test che poteva nascondere un mock POST/PATCH mancante. Con questo
   ticket lo strumento è funzionalmente completo secondo la spec (issue #1). Commit `6714f2e`,
   pushato, issue #5 chiusa.
-- **2026-09-16, consegna.** Scritti `report/report.md` (299 parole, focus su che problema risolve
-  e come può essere utile, su richiesta esplicita di Andrea) e `report/CONSEGNA.md`. Formato
-  breve come deciso in `CONTEXT.md`: nessuna figura, nessuna sezione da dividere fra home e
-  pubblicazione estesa — il report è già la lunghezza di un blocco da home.
+- **2026-09-16, consegna.** Scritti `report/report.md` e `report/CONSEGNA.md`. Formato breve come
+  deciso in `CONTEXT.md`: nessuna figura, nessuna sezione da dividere fra home e pubblicazione
+  estesa. Prima versione del report in prosa continua (299 parole); Andrea ha chiesto di
+  riscriverla con sezioni distinte ("Quale problema risolve", "A chi è indirizzato",
+  "Funzionalità", "Personalizzazione") e di togliere le frasi autoconclusive che non aggiungono
+  informazione (es. "la fiducia in un processo automatizzato dipende da questo controllo quanto
+  dalla qualità del modello che lo alimenta") — tono neutro, non promozionale. Versione finale:
+  260 parole.
