@@ -55,3 +55,43 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   nonostante il CLAUDE.md di progetto lo richieda esplicitamente da subito — creato ora,
   recuperando anche la sessione del ticket #2 a memoria/da `CONTEXT.md` e dai commit, dato che il
   diario grezzo di quella sessione non era stato scritto in tempo reale.
+- **2026-09-16, ticket #4 — interfaccia, lettura dell'item di coda.** Scaffolding da zero di
+  `frontend/` (Next.js 16 App Router, TypeScript, primo codice TS del repo — finora solo Python).
+  Riletto il prototipo throwaway (`prototype/giudice-ui`, variante A vinta) per replicarne
+  esattamente la struttura a tre colonne + area di lavoro. `lib/langfuse.ts`: niente SDK
+  `langfuse` per Node, chiamate dirette `fetch` alle stesse API REST pubbliche già usate dal
+  backend Python (Basic Auth public:secret) — risolve la coda per nome, prende il primo item
+  `PENDING` (non ancora giudicato dall'umano), legge le osservazioni della traccia per nome
+  (`pipeline-preventivo`, `esecutore`, `giudice-automatico`, `documento-preventivo`), risolve il
+  riferimento media del PDF (`GET /api/public/media/{id}`) in un URL scaricabile per l'anteprima.
+  Scelta deliberata: tutta questa logica gira lato server (Server Component), le chiavi Langfuse
+  non arrivano mai al client. `lib/catalogo.ts` legge `backend/data/catalogo.json` direttamente
+  da filesystem — stesso file della pipeline Python, nessuna duplicazione. Componente
+  `ItemDaRivedereView` presentazionale puro (riceve dati già mappati, zero terminologia Langfuse),
+  con l'area di lavoro (giudizio, invio) resa in markup ma disabilitata: l'interattività è
+  ticket #5, qui va solo predisposto il layout. Test (Vitest + Testing Library): mockano
+  `global.fetch` per le quattro chiamate Langfuse e verificano che tutti i blocchi (richiesta,
+  tabella, verdetti separati, catalogo dietro toggle, assenza di terminologia tecnica) si
+  rendano coi dati giusti; test separati su `caricaProssimoItemDaRivedere` per i casi di coda
+  assente, item assente, documento assente, osservazioni mancanti. `next.config.ts` carica le
+  credenziali da `../.env` (unico file, condiviso col backend) con `process.loadEnvFile`, non un
+  `.env.local` duplicato. Verificato end-to-end con `next dev` contro Langfuse Cloud vero: la
+  pagina mostra un item reale rimasto in coda dal test manuale del ticket #3 (richiesta, tabella,
+  anteprima PDF in iframe, verdetti, catalogo a comparsa) — nessun errore console, nessuna
+  chiamata Langfuse fallita. `jsdom` fissato a 29.1.1 (non l'ultima, 30.x, che richiede una
+  versione di Node più recente di quella installata). `typescript` fissato a 5.9.3 (non l'ultima
+  major, 7.x, appena rilasciata e non ancora verificata con l'ecosistema Next.js/testing usato
+  qui). Code review con 8 agenti in parallelo: 6 problemi trovati e corretti — un crash reale
+  (`outputDocumento.documento.match()` senza controllare che il campo fosse una stringa presente,
+  scatenabile da una finestra di ingestion asincrona lato Langfuse), cast TypeScript senza
+  validazione a runtime su esecutore/giudice (a differenza del backend, che valida esplicitamente
+  gli stessi campi — aggiunta validazione equivalente lato TS), stessa mancanza di validazione nel
+  caricamento del catalogo (allineato a `_valida_campi` del backend), "coda non trovata" e "coda
+  vuota" collassati nello stesso `null` (un errore di configurazione si presentava come stato
+  normale — ora la coda mancante solleva un errore esplicito), due mappe parallele
+  etichetta/classe per lo stesso esito unificate, helper di mock `fetch` duplicato nei due file di
+  test estratto in `tests/mock-langfuse.ts`. Rifiutate esplicitamente altre proposte emerse in
+  review (uso dell'SDK Langfuse Node al posto di `fetch` diretto, caching delle chiamate,
+  parallelizzazione della catena coda→traccia→media): la catena è per costruzione sequenziale
+  (ogni chiamata usa l'id restituito dalla precedente), il traffico atteso è un singolo revisore
+  umano, e introdurre l'SDK per sole quattro GET non avrebbe ridotto rischio reale.

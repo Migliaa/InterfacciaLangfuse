@@ -196,3 +196,12 @@ tecnico ma non come nome primario)
   (`_valida_preventivo`), non nel modulo di rendering: fail-fast dove il dato viene prodotto.
   Dettagli del processo (bug trovati in review, decisioni di refactor) in `DIARIO.md`, non
   ripetuti qui.
+- **Ticket #4 (interfaccia, lettura dell'item di coda) implementato.** Primo codice TypeScript
+  del repo: `frontend/` (Next.js App Router), adattato dal layout vinto nel prototipo throwaway
+  (variante "tre colonne + area di lavoro"). Legge la coda Langfuse via chiamate `fetch` dirette
+  alle API REST pubbliche (stesso backend REST usato dall'SDK Python, nessun SDK Node aggiunto),
+  interamente lato server: le chiavi Langfuse non arrivano mai al browser. Il catalogo di
+  riferimento è letto direttamente da `backend/data/catalogo.json`, non duplicato. L'area di
+  lavoro (giudizio, invio) è presente nel layout ma disabilitata: la sua interattività è ticket
+  #5. Dettagli del processo (scelte di libreria, verifica end-to-end contro Langfuse Cloud) in
+  `DIARIO.md`, non ripetuti qui.
