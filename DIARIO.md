@@ -132,5 +132,9 @@ Una riga per sessione, memoria grezza del processo. Non letto dalla sessione del
   messaggio d'errore generico sostituito da quello specifico lanciato dal livello dati,
   `GruppoEsito`/`GruppoAccordo` unificati in un solo componente generico, un fallback silenzioso
   nell'helper di mock dei test che poteva nascondere un mock POST/PATCH mancante. Con questo
-  ticket lo strumento è funzionalmente completo secondo la spec (issue #1): resta da scrivere
-  `report/report.md` + `CONSEGNA.md`.
+  ticket lo strumento è funzionalmente completo secondo la spec (issue #1). Commit `6714f2e`,
+  pushato, issue #5 chiusa.
+- **2026-09-16, consegna.** Scritti `report/report.md` (299 parole, focus su che problema risolve
+  e come può essere utile, su richiesta esplicita di Andrea) e `report/CONSEGNA.md`. Formato
+  breve come deciso in `CONTEXT.md`: nessuna figura, nessuna sezione da dividere fra home e
+  pubblicazione estesa — il report è già la lunghezza di un blocco da home.
